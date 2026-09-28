@@ -10,6 +10,16 @@ def find_empty(board):
 
     return None
 
+def find_tile(board, tile):
+    """Находит координаты указанной костяшки."""
+
+    for row in range(SIZE):
+        for col in range(SIZE):
+            if board[row][col] == tile:
+                return row, col
+
+    return None
+
 
 def is_valid_move(board, row, col):
     """Проверяет возможность хода."""

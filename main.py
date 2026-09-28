@@ -1,17 +1,22 @@
 from board import create_board, copy_board, print_board
-from game import is_valid_move, make_move, is_win
-from input_handler import get_game_mode, get_coordinates
+from game import is_valid_move, make_move, is_win, find_tile
+from input_handler import get_game_mode, get_tile
 from computer import make_computer_move
 
 
 def print_single_player(board, moves):
     """Вывод поля в одиночном режиме."""
+
     print_board(board)
     print(f"Количество ходов: {moves}")
 
 
-def print_competition(player_board, computer_board,
-                      player_moves, computer_moves):
+def print_competition(
+        player_board,
+        computer_board,
+        player_moves,
+        computer_moves
+):
     """Выводит оба поля в режиме соревнования."""
 
     print("\n" + "=" * 45)
@@ -38,33 +43,45 @@ def single_player():
     moves = 0
 
     while True:
+
+        # Показываем текущее поле
         print_single_player(board, moves)
 
+        # Проверяем победу
         if is_win(board):
-            print("\n ПОБЕДА!")
-            print(f"Вы решили головоломку за {moves} ходов.")
+            print("\nПОБЕДА!")
+            print(
+                f"Вы решили головоломку за {moves} ходов."
+            )
             break
 
-        coordinates = get_coordinates()
+        # Получаем номер костяшки
+        tile = get_tile()
 
-        if coordinates is None:
+        # Выход из игры
+        if tile is None:
             print("\nИгра завершена.")
             break
 
-        row, col = coordinates
+        # Находим костяшку на поле
+        position = find_tile(board, tile)
 
-        if board[row][col] == 0:
-            print("Ошибка: выбрана пустая клетка.")
+        if position is None:
+            print("Ошибка: такая костяшка не найдена.")
             continue
 
+        row, col = position
+
+        # Проверяем возможность хода
         if not is_valid_move(board, row, col):
             print("Недопустимый ход!")
             print(
-                "Костяшка должна находиться рядом "
+                f"Костяшка {tile} не находится рядом "
                 "с пустой клеткой."
             )
             continue
 
+        # Делаем ход
         make_move(board, row, col)
         moves += 1
 
@@ -77,7 +94,7 @@ def competition():
     # Создаём одно начальное поле
     original_board = create_board()
 
-    # У игрока и компьютера одинаковое начальное состояние
+    # Игрок и компьютер получают одинаковое поле
     player_board = copy_board(original_board)
     computer_board = copy_board(original_board)
 
@@ -87,6 +104,8 @@ def competition():
     previous_computer_move = None
 
     while True:
+
+        # Показываем оба поля
         print_competition(
             player_board,
             computer_board,
@@ -98,32 +117,41 @@ def competition():
         # ХОД ИГРОКА
         # ----------------------------
 
+        # Проверяем победу игрока
         if is_win(player_board):
-            print("\n ВЫ ПОБЕДИЛИ!")
+            print("\nВЫ ПОБЕДИЛИ!")
             print(
-                f"Вы собрали поле за {player_moves} ходов."
+                f"Вы собрали поле за "
+                f"{player_moves} ходов."
             )
             print(
-                f"Компьютер сделал {computer_moves} ходов."
+                f"Компьютер сделал "
+                f"{computer_moves} ходов."
             )
             break
 
-        coordinates = get_coordinates()
+        # Получаем номер костяшки
+        tile = get_tile()
 
-        if coordinates is None:
+        # Выход из игры
+        if tile is None:
             print("\nИгра завершена.")
             break
 
-        row, col = coordinates
+        # Находим костяшку на поле игрока
+        position = find_tile(player_board, tile)
 
-        if player_board[row][col] == 0:
-            print("Ошибка: выбрана пустая клетка.")
+        if position is None:
+            print("Ошибка: такая костяшка не найдена.")
             continue
 
+        row, col = position
+
+        # Проверяем возможность хода
         if not is_valid_move(player_board, row, col):
             print("Недопустимый ход!")
             print(
-                "Костяшка должна находиться рядом "
+                f"Костяшка {tile} не находится рядом "
                 "с пустой клеткой."
             )
             continue
@@ -132,7 +160,7 @@ def competition():
         make_move(player_board, row, col)
         player_moves += 1
 
-        # Проверяем победу игрока сразу
+        # Проверяем победу игрока сразу после хода
         if is_win(player_board):
             print_competition(
                 player_board,
@@ -141,9 +169,10 @@ def competition():
                 computer_moves
             )
 
-            print("\n ВЫ ПОБЕДИЛИ!")
+            print("\nВЫ ПОБЕДИЛИ!")
             print(
-                f"Вы собрали поле за {player_moves} ходов."
+                f"Вы собрали поле за "
+                f"{player_moves} ходов."
             )
             break
 
@@ -151,7 +180,7 @@ def competition():
         # ХОД КОМПЬЮТЕРА
         # ----------------------------
 
-        print("\n Ход компьютера...")
+        print("\nХод компьютера...")
 
         previous_computer_move = make_computer_move(
             computer_board,
@@ -160,37 +189,47 @@ def competition():
 
         computer_moves += 1
 
-        # Показываем действие компьютера
-        print("\nКомпьютер сделал ход:")
-
-        print_board(
-            computer_board,
-            "Поле компьютера:"
-        )
-
-        print(
-            f"Ходов компьютера: {computer_moves}"
-        )
-
         # Проверяем победу компьютера
         if is_win(computer_board):
-            print("\n КОМПЬЮТЕР ПОБЕДИЛ!")
+            print_competition(
+                player_board,
+                computer_board,
+                player_moves,
+                computer_moves
+            )
+
+            print("\nКОМПЬЮТЕР ПОБЕДИЛ!")
             print(
-                f"Компьютер собрал поле "
-                f"за {computer_moves} ходов."
+                f"Компьютер собрал поле за "
+                f"{computer_moves} ходов."
             )
             print(
-                f"Вы сделали {player_moves} ходов."
+                f"Вы сделали "
+                f"{player_moves} ходов."
             )
             break
+
+        # После хода компьютера снова показываем
+        # оба поля перед следующим ходом игрока
+        print_competition(
+            player_board,
+            computer_board,
+            player_moves,
+            computer_moves
+        )
 
 
 def main():
     print("========================================")
     print("          ИГРА «ПЯТНАШКИ»")
-    print(f"правила: вы выбираете костяшку, \nкоторая будет перемещена на пустое место")
+    print("========================================")
+    print(
+        "Правила: вы выбираете номер костяшки,\n"
+        "которая будет перемещена на пустое место."
+    )
     print("========================================")
 
+    # Выбираем режим игры
     mode = get_game_mode()
 
     if mode == 1:

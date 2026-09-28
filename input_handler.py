@@ -17,34 +17,26 @@ def get_game_mode():
         print("Ошибка: введите 1 или 2.")
 
 
-def get_coordinates():
-    """Получает координаты костяшки от пользователя."""
+def get_tile():
+    """Получает номер костяшки от пользователя."""
 
     while True:
         user_input = input(
-            "\nВведите координаты костяшки "
-            "(строка столбец, от 1 до 4) "
+            "\nВведите номер костяшки (1-15) "
             "или 'q' для выхода: "
         ).strip()
 
         if user_input.lower() == "q":
             return None
 
-        parts = user_input.split()
-
-        if len(parts) != 2:
-            print("Ошибка: необходимо ввести два числа.")
-            continue
-
         try:
-            row = int(parts[0])
-            col = int(parts[1])
+            tile = int(user_input)
         except ValueError:
-            print("Ошибка: координаты должны быть числами.")
+            print("Ошибка: необходимо ввести число от 1 до 15.")
             continue
 
-        if not (1 <= row <= 4 and 1 <= col <= 4):
-            print("Ошибка: координаты должны быть от 1 до 4.")
+        if not 1 <= tile <= 15:
+            print("Ошибка: номер костяшки должен быть от 1 до 15.")
             continue
 
-        return row - 1, col - 1
+        return tile
